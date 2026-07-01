@@ -43,7 +43,9 @@ function buildPrompt({ author, body, length, guideline, tone, emoji, endWithQues
 
   // Emoji instruction
   const emojiInstruction = emoji
-    ? `You may use emojis sparingly and naturally — ONLY from this allowed set: ❤️ 💫 ❣️ 😍 😂 👀 👌 ✌🏻 ✨ 💯. Never force an emoji. NEVER use 🚀, 🔥, 🙌, 💪, 🎯, 📈, 🌟, or other generic "AI-sounding" emojis.`
+    ? `You MUST include 1-2 relevant emojis in each comment, chosen ONLY from this exact set. Do not omit them. Place them naturally where they fit, not forced at the start of the comment.
+Allowed Emoji Set: ❤️ 💫 ❣️ 😍 😂 👀 👌 ✌🏻 ✨ 💯 ✅ 👍 👏🏻 😅 😐 🥳
+EXPLICITLY BANNED EMOJIS: 🚀, 🔥, and any other generic or AI-sounding emojis not in the allowed list.`
     : "Do not use any emojis in any of the variations.";
 
   // Voice Customization
@@ -55,9 +57,9 @@ function buildPrompt({ author, body, length, guideline, tone, emoji, endWithQues
 
 POST AUTHOR: ${authorName}
 POST BODY:
-"""
+""\"
 ${body}
-"""
+""\"
 
 TASK: Write exactly 3 distinct LinkedIn comment variations in response to this post. Each comment must be ${wordTarget} in length.
 
@@ -70,9 +72,9 @@ ${emojiInstruction}
 
   // Question instruction
   if (endWithQuestion) {
-    prompt += `\nQUESTION REQUIREMENT:\nEach comment variation MUST end with one natural, relevant follow-up question that shows you read the post. The question should invite further discussion, not be generic.\n`;
+    prompt += `\nQUESTION REQUIREMENT:\nEach comment MUST end with one relevant, natural question.\n`;
   } else {
-    prompt += `\nQUESTION REQUIREMENT:\nDo NOT end any comment with a question. End with a statement.\n`;
+    prompt += `\nQUESTION REQUIREMENT:\nEach comment variation must end with a statement, NO question.\n`;
   }
 
   if (voiceInstruction) {

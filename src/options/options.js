@@ -212,7 +212,7 @@ async function handleAddExample() {
   if (!text) return;
   if (commentExamples.length >= 5) return;
   
-  # Exceeds 300 characters check
+  // Exceeds 300 characters check
   if (text.length > 300) {
     return; // Block adding it
   }
