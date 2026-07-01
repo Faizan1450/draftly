@@ -2,6 +2,47 @@ import { getSettings } from '../lib/storage.js';
 
 console.log("Draftly service worker active");
 
+const VALID_ICON_COLORS = ['pink', 'teal', 'crimson', 'amber', 'ocean'];
+
+/**
+ * Updates the extension action icon based on the theme color.
+ * @param {string} themeColor
+ */
+async function updateExtensionIcon(themeColor) {
+  let color = themeColor || 'pink';
+  if (!VALID_ICON_COLORS.includes(color)) {
+    color = 'pink';
+  }
+  try {
+    await chrome.action.setIcon({
+      path: {
+        "16": `icons/${color}/icon16.png`,
+        "32": `icons/${color}/icon32.png`,
+        "48": `icons/${color}/icon48.png`,
+        "128": `icons/${color}/icon128.png`
+      }
+    });
+    console.log(`[Draftly] Toolbar icon set to: ${color}`);
+  } catch (err) {
+    console.error('[Draftly] Failed to set toolbar icon:', err);
+  }
+}
+
+// Call on startup
+getSettings().then(settings => {
+  const themeColor = settings?.themeColor || 'pink';
+  updateExtensionIcon(themeColor);
+}).catch(() => {
+  updateExtensionIcon('pink');
+});
+
+// Listen for themeColor change
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local' && changes.themeColor) {
+    updateExtensionIcon(changes.themeColor.newValue);
+  }
+});
+
 // Listen for installation
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Draftly extension installed");

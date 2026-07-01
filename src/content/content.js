@@ -4,6 +4,12 @@ const log = (...args) => console.log("[Draftly]", ...args);
 log("content script loaded");
 
 const PALETTES = {
+  pink: {
+    base: '#EC4899',
+    hover: '#DB2777',
+    soft: '#FCE7F3',
+    border: '#F9A8D4'
+  },
   teal: {
     base: '#0D9488',
     hover: '#0F766E',
@@ -27,17 +33,11 @@ const PALETTES = {
     hover: '#075985',
     soft: '#E0F2FE',
     border: '#7DD3FC'
-  },
-  pink: {
-    base: '#EC4899',
-    hover: '#DB2777',
-    soft: '#FCE7F3',
-    border: '#F9A8D4'
   }
 };
 
 function applyDynamicAccent(colorName) {
-  const palette = PALETTES[colorName] || PALETTES.teal;
+  const palette = PALETTES[colorName] || PALETTES.pink;
   const root = document.documentElement;
   root.style.setProperty('--draftly-accent', palette.base);
   root.style.setProperty('--draftly-accent-hover', palette.hover);
@@ -50,7 +50,7 @@ chrome.runtime.sendMessage({ action: 'getSettings' }, (settings) => {
   if (settings && settings.themeColor) {
     applyDynamicAccent(settings.themeColor);
   } else {
-    applyDynamicAccent('teal');
+    applyDynamicAccent('pink');
   }
 });
 
@@ -253,7 +253,10 @@ function createDraftlyIcon(commentBox) {
   btn.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
       <circle cx="12" cy="12" r="10" fill="currentColor"/>
-      <text x="12" y="16.5" font-family="-apple-system, sans-serif" font-weight="bold" font-size="13" fill="#ffffff" text-anchor="middle">D</text>
+      <g transform="translate(5.9, 5.5) scale(0.09375)" fill="#FFFFFF">
+        <path d="M 36 100 L 44 92 C 46 88, 48 84, 51 79 C 55 69, 61 58, 70 49 C 79 40, 88 33, 97 28 C 99 27, 101 28, 100 31 C 95 45, 88 57, 79 66 C 83 65, 87 63, 91 60 C 84 69, 76 76, 67 81 C 60 85, 54 87, 49 90 L 41 97 Z"/>
+        <path d="M 36 100 L 29 107 L 33 110 L 39 104 Z"/>
+      </g>
     </svg>
   `;
 
@@ -922,7 +925,12 @@ async function openPanel(commentBox, iconEl, postContext) {
 
   const headerIcon = document.createElement('span');
   headerIcon.className = 'draftly-header-icon';
-  headerIcon.textContent = 'D';
+  headerIcon.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="#FFFFFF" width="14" height="14">
+      <path d="M 36 100 L 44 92 C 46 88, 48 84, 51 79 C 55 69, 61 58, 70 49 C 79 40, 88 33, 97 28 C 99 27, 101 28, 100 31 C 95 45, 88 57, 79 66 C 83 65, 87 63, 91 60 C 84 69, 76 76, 67 81 C 60 85, 54 87, 49 90 L 41 97 Z"/>
+      <path d="M 36 100 L 29 107 L 33 110 L 39 104 Z"/>
+    </svg>
+  `;
   titleWrap.appendChild(headerIcon);
 
   const titleText = document.createTextNode('Draftly');

@@ -5,7 +5,7 @@ export const DEFAULT_SETTINGS = {
   emoji: false,
   endWithQuestion: false,
   voiceContext: "",
-  themeColor: "teal",
+  themeColor: "pink",
   commentExamples: [],
   themeMode: "light"
 };

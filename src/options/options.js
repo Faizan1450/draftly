@@ -1,6 +1,12 @@
 import { getSettings, saveSettings } from '../lib/storage.js';
 
 const PALETTES = {
+  pink: {
+    base: '#EC4899',
+    hover: '#DB2777',
+    soft: '#FCE7F3',
+    border: '#F9A8D4'
+  },
   teal: {
     base: '#0D9488',
     hover: '#0F766E',
@@ -24,12 +30,6 @@ const PALETTES = {
     hover: '#075985',
     soft: '#E0F2FE',
     border: '#7DD3FC'
-  },
-  pink: {
-    base: '#EC4899',
-    hover: '#DB2777',
-    soft: '#FCE7F3',
-    border: '#F9A8D4'
   }
 };
 
@@ -59,7 +59,7 @@ const settingsPanels = document.querySelectorAll('.settings-panel');
 // Color swatches DOM
 const swatches = document.querySelectorAll('.palette-swatch');
 
-let currentThemeColor = 'teal';
+let currentThemeColor = 'pink';
 let commentExamples = [];
 
 /**
@@ -67,7 +67,7 @@ let commentExamples = [];
  * @param {string} colorName 
  */
 function applyThemePalette(colorName) {
-  const palette = PALETTES[colorName] || PALETTES.teal;
+  const palette = PALETTES[colorName] || PALETTES.pink;
   const root = document.documentElement;
   root.style.setProperty('--draftly-accent', palette.base);
   root.style.setProperty('--draftly-accent-hover', palette.hover);
@@ -278,7 +278,7 @@ async function init() {
     updateCharCounter();
 
     // Apply color palette
-    const color = settings.themeColor || 'teal';
+    const color = settings.themeColor || 'pink';
     applyThemePalette(color);
 
     // Theme Mode
