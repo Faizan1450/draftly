@@ -1,0 +1,560 @@
+/* ============================================================
+   Draftly — Light + Teal Design System
+   ============================================================ */
+
+:root {
+  --draftly-surface: #FFFFFF;
+  --draftly-surface-2: #F8FAFC;
+  --draftly-border: #E2E8F0;
+  --draftly-text: #0F172A;
+  --draftly-text-muted: #64748B;
+  --draftly-accent: #0D9488;
+  --draftly-accent-hover: #0F766E;
+  --draftly-accent-soft: #CCFBF1;
+  --draftly-accent-border: #5EEAD4;
+  --draftly-success: #16A34A;
+  --draftly-danger: #DC2626;
+  --draftly-active-bg: var(--draftly-accent-soft);
+}
+
+.theme-dark {
+  --draftly-surface: #1E293B;
+  --draftly-surface-2: #0B1120;
+  --draftly-border: #334155;
+  --draftly-text: #F1F5F9;
+  --draftly-text-muted: #94A3B8;
+  --draftly-success: #34D399;
+  --draftly-danger: #F87171;
+  --draftly-active-bg: color-mix(in srgb, var(--draftly-accent) 15%, var(--draftly-surface));
+}
+
+.theme-dark.draftly-panel {
+  box-shadow: none;
+}
+
+/* ---- Injected icon wrapper ---- */
+.draftly-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.draftly-wrapper.fallback {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 10;
+  margin-right: 0;
+}
+
+.draftly-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  outline: none;
+  width: 32px;
+  height: 32px;
+  color: var(--draftly-accent);
+}
+
+.draftly-btn:hover {
+  background-color: var(--draftly-accent-soft);
+  transform: scale(1.05);
+}
+
+.draftly-btn:active {
+  transform: scale(0.95);
+}
+
+.draftly-btn svg {
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* ============================================================
+   PANEL
+   ============================================================ */
+
+.draftly-panel {
+  position: fixed;
+  z-index: 2147483647;
+  width: 340px;
+  max-height: min(580px, 90vh);
+  overflow-y: auto;
+  background: var(--draftly-surface);
+  border: 1px solid var(--draftly-border);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--draftly-text);
+  font-size: 14px;
+  line-height: 1.5;
+  animation: draftly-panel-in 0.18s ease-out;
+}
+
+/* Scrollbar styling */
+.draftly-panel::-webkit-scrollbar {
+  width: 5px;
+}
+.draftly-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.draftly-panel::-webkit-scrollbar-thumb {
+  background: var(--draftly-border);
+  border-radius: 4px;
+}
+
+@keyframes draftly-panel-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+/* ---- Header ---- */
+.draftly-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 11px;
+  border-bottom: 1px solid var(--draftly-border);
+  background: var(--draftly-surface);
+  border-radius: 14px 14px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.draftly-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--draftly-text);
+  letter-spacing: -0.015em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.draftly-header-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--draftly-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.draftly-header-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--draftly-success);
+  margin-left: 6px;
+}
+
+.draftly-header-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--draftly-success);
+}
+
+.draftly-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.draftly-panel-gear,
+.draftly-panel-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--draftly-text-muted);
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: color 0.15s, background-color 0.15s;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.draftly-panel-gear:hover,
+.draftly-panel-close:hover {
+  color: var(--draftly-text);
+  background: var(--draftly-surface-2);
+}
+
+.draftly-panel-gear svg,
+.draftly-panel-close svg {
+  display: block;
+}
+
+/* ---- Body ---- */
+.draftly-panel-body {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---- Section label ---- */
+.draftly-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--draftly-text-muted);
+  margin-bottom: 6px;
+}
+
+/* ---- Chip selector (shared for Tone + Length) ---- */
+.draftly-chip-group {
+  display: flex;
+  gap: 6px;
+}
+
+.draftly-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: var(--draftly-surface);
+  border: 1px solid var(--draftly-border);
+  border-radius: 8px;
+  padding: 7px 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--draftly-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  outline: none;
+}
+
+.draftly-chip:hover:not(.active) {
+  border-color: var(--draftly-accent-border);
+  color: var(--draftly-text);
+}
+
+.draftly-chip.active {
+  background: var(--draftly-active-bg);
+  border-color: var(--draftly-accent-border);
+  color: var(--draftly-accent);
+  font-weight: 600;
+}
+
+.draftly-chip-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* ---- Per-comment pill toggles row ---- */
+.draftly-toggles-row {
+  display: flex;
+  gap: 8px;
+}
+
+.draftly-pill-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: var(--draftly-surface-2);
+  border: 1px solid var(--draftly-border);
+  cursor: pointer;
+  transition: all 0.18s;
+  user-select: none;
+}
+
+.draftly-pill-toggle.on {
+  background: var(--draftly-active-bg);
+  border-color: var(--draftly-accent-border);
+}
+
+.draftly-pill-icon {
+  font-size: 13px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.draftly-pill-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--draftly-text-muted);
+  flex: 1;
+  white-space: nowrap;
+}
+
+.draftly-pill-toggle.on .draftly-pill-label {
+  color: var(--draftly-accent);
+}
+
+/* Mini switch inside pill */
+.draftly-mini-switch {
+  width: 28px;
+  height: 16px;
+  border-radius: 10px;
+  background: var(--draftly-border);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.18s;
+}
+
+.draftly-mini-switch::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.18s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.draftly-pill-toggle.on .draftly-mini-switch {
+  background: var(--draftly-accent);
+}
+
+.draftly-pill-toggle.on .draftly-mini-switch::after {
+  transform: translateX(12px);
+}
+
+/* ---- Guideline input ---- */
+.draftly-guideline-wrap {
+  position: relative;
+}
+
+.draftly-guideline-input {
+  width: 100%;
+  background: var(--draftly-surface-2);
+  border: 1px solid var(--draftly-border);
+  color: var(--draftly-text);
+  border-radius: 8px;
+  padding: 9px 11px;
+  padding-right: 50px;
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.draftly-guideline-input::placeholder {
+  color: var(--draftly-text-muted);
+}
+
+.draftly-guideline-input:focus {
+  border-color: var(--draftly-accent);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.10);
+}
+
+.draftly-char-count {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  font-size: 10px;
+  color: var(--draftly-text-muted);
+  pointer-events: none;
+}
+
+/* ---- Tip box ---- */
+.draftly-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  background: var(--draftly-surface-2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--draftly-text-muted);
+  line-height: 1.45;
+}
+
+.draftly-tip-icon {
+  flex-shrink: 0;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+/* ---- Generate button ---- */
+.draftly-generate-btn {
+  width: 100%;
+  background: var(--draftly-accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.draftly-generate-btn:hover {
+  background: var(--draftly-accent-hover);
+}
+
+.draftly-generate-btn:active {
+  transform: scale(0.98);
+}
+
+.draftly-generate-btn:disabled {
+  background: #94A3B8;
+  cursor: not-allowed;
+}
+
+.draftly-generate-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ---- Variations ---- */
+.draftly-variations {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: draftly-panel-in 0.15s ease-out;
+}
+
+.draftly-variation-card {
+  background: var(--draftly-surface);
+  border: 1px solid var(--draftly-border);
+  border-radius: 10px;
+  padding: 11px 12px 10px;
+  transition: border-color 0.15s;
+}
+
+.draftly-variation-card:hover {
+  border-color: var(--draftly-accent-border);
+}
+
+.draftly-variation-num {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--draftly-accent);
+  margin-bottom: 5px;
+}
+
+.draftly-variation-text {
+  font-size: 13px;
+  color: var(--draftly-text);
+  line-height: 1.6;
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+}
+
+.draftly-variation-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.draftly-paste-btn,
+.draftly-copy-btn {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.draftly-paste-btn {
+  background: var(--draftly-accent);
+  color: #fff;
+  border-color: var(--draftly-accent);
+}
+
+.draftly-paste-btn:hover {
+  background: var(--draftly-accent-hover);
+  border-color: var(--draftly-accent-hover);
+}
+
+.draftly-copy-btn {
+  background: transparent;
+  color: var(--draftly-text-muted);
+  border-color: var(--draftly-border);
+}
+
+.draftly-copy-btn:hover {
+  background: var(--draftly-surface-2);
+  color: var(--draftly-text);
+  border-color: var(--draftly-accent-border);
+}
+
+/* ---- Regenerate button ---- */
+.draftly-regenerate-btn {
+  width: 100%;
+  background: transparent;
+  color: var(--draftly-accent);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+}
+
+.draftly-regenerate-btn:hover {
+  background: var(--draftly-active-bg);
+}
+
+/* ---- Loading state ---- */
+.draftly-loading {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--draftly-accent);
+  font-size: 13px;
+  font-weight: 500;
+  animation: draftly-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes draftly-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+
+/* ---- Inline error ---- */
+.draftly-inline-error {
+  text-align: center;
+  padding: 16px 12px;
+  color: var(--draftly-danger);
+  font-size: 12px;
+  line-height: 1.5;
+}
