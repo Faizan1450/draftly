@@ -84,9 +84,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
  * NO hashed CSS class names used as selectors.
  *
  * @param {HTMLElement} commentBox
- * @returns {{ author: string|null, body: string|null, extractionError: string|null }}
+ * @returns {Promise<{ author: string|null, body: string|null, extractionError: string|null }>}
  */
-function extractPostContext(commentBox) {
+async function extractPostContext(commentBox) {
   // STEP 1 — DETECT ARCHITECTURE
   const ariaLabel = commentBox.getAttribute('aria-label') || '';
   let arch = null;
@@ -158,55 +158,76 @@ function extractPostContext(commentBox) {
   // STEP 4 — EXTRACT BODY
   let bodyText = null;
 
-  if (arch === 'feed') {
-    // Collect all <p> tags in the container that are NOT inside the comment box
-    const allPs = Array.from(container.querySelectorAll('p')).filter(p => !commentBox.contains(p) && !p.closest('[role="list"]'));
+  // Helper: run timestamp-anchor + fallback logic on an array of elements
+  const TIMESTAMP_RE = /^\s*\d+\s*[smhdw]\w{0,2}\s*(?:[•·]\s*(?:Edited)?\s*[•·]?)?\s*$/i;
+  const REACTION_RE  = /^\d[\d,]*\s*(reaction|comment|repost|like|share)/i;
 
-    // Find timestamp paragraph (matches "57m", "21h •", "2d", "1w", etc.)
-    const TIMESTAMP_RE = /^\s*\d+\s*[smhdw]\w{0,2}\s*(?:[•·]\s*(?:Edited)?\s*[•·]?)?\s*$/i;
+  function extractBodyFromElements(els) {
     let tsIndex = -1;
-    for (let i = 0; i < allPs.length; i++) {
-      const t = (allPs[i].textContent || '').trim();
-      if (TIMESTAMP_RE.test(t)) {
-        tsIndex = i;
-        break;
+    for (let i = 0; i < els.length; i++) {
+      if (TIMESTAMP_RE.test((els[i].textContent || '').trim())) { tsIndex = i; break; }
+    }
+    if (tsIndex >= 0 && tsIndex + 1 < els.length) {
+      const parts = [];
+      for (let i = tsIndex + 1; i < els.length; i++) {
+        const t = (els[i].textContent || '').trim();
+        if (!t || REACTION_RE.test(t)) break;
+        parts.push(t);
+        if (parts.join(' ').length > 500 && i > tsIndex + 2) break;
       }
+      if (parts.length > 0) return parts.join(' ').trim();
+    }
+    // Fallback: last element with length > 10 that is not a timestamp
+    const fallback = [...els].reverse().find(el => {
+      const t = (el.textContent || '').trim();
+      return t.length > 10 && !TIMESTAMP_RE.test(t);
+    });
+    return fallback ? (fallback.textContent || '').trim() : null;
+  }
+
+  if (arch === 'feed') {
+    // First attempt: collect <p> tags outside comment box and comments list
+    let allPs = Array.from(container.querySelectorAll('p'))
+      .filter(p => !commentBox.contains(p) && !p.closest('[role="list"]'));
+
+    // RETRY: if zero <p> tags found, LinkedIn may not have hydrated yet — wait 300ms and re-query
+    if (allPs.length === 0) {
+      await new Promise(r => setTimeout(r, 300));
+      allPs = Array.from(container.querySelectorAll('p'))
+        .filter(p => !commentBox.contains(p) && !p.closest('[role="list"]'));
+      log('[extract] STEP 4 retry after 300ms, p-tag count:', allPs.length);
     }
 
-    if (tsIndex >= 0 && tsIndex + 1 < allPs.length) {
-      // Body = paragraph(s) after the timestamp
-      const REACTION_RE = /^\d[\d,]*\s*(reaction|comment|repost|like|share)/i;
-      let bodyParts = [];
-      for (let i = tsIndex + 1; i < allPs.length; i++) {
-        const t = (allPs[i].textContent || '').trim();
-        if (!t) break;
-        if (REACTION_RE.test(t)) break;
-        bodyParts.push(t);
-        // Stop after gathering enough content (avoid bleeding into comments)
-        if (bodyParts.join(' ').length > 500 && i > tsIndex + 2) break;
-      }
-      if (bodyParts.length > 0) {
-        bodyText = bodyParts.join(' ').trim();
-        log('[extract] STEP 4 OK (timestamp anchor): body length =', bodyText.length);
-      }
+    if (allPs.length > 0) {
+      bodyText = extractBodyFromElements(allPs);
+      if (bodyText) log('[extract] STEP 4 OK (p-tags): body length =', bodyText.length);
     }
 
-    // Fallback: last <p> with length > 10 that isn't a timestamp
+    // SPAN/DIV FALLBACK: if p-tags produced nothing, try spans and divs
     if (!bodyText) {
-      const fallbackP = [...allPs].reverse().find(p => {
-        const t = (p.textContent || '').trim();
-        return t.length > 10 && !TIMESTAMP_RE.test(t);
-      });
-      if (fallbackP) {
-        bodyText = (fallbackP.textContent || '').trim();
-        log('[extract] STEP 4 OK (fallback p): body length =', bodyText.length);
-      }
-    }
+      const spanDivs = Array.from(container.querySelectorAll('span, div'))
+        .filter(el => {
+          if (commentBox.contains(el)) return false;
+          if (el.closest('[role="list"]')) return false;
+          // Only leaf-ish elements (avoid giant wrapper divs)
+          const t = (el.textContent || '').trim();
+          return t.length > 0 && t.length < 2000 && el.children.length < 5;
+        });
+      log('[extract] STEP 4 fallback to span/div, count:', spanDivs.length);
 
-    if (!bodyText) {
-      log('[extract] STEP 4 FAIL (feed): p-tag texts found:', allPs.map(p => p.textContent.trim()));
-      log('[extract] STEP 4 FAIL (feed): no body paragraph found');
-      return { author: null, body: null, extractionError: 'step4' };
+      if (spanDivs.length > 0) {
+        bodyText = extractBodyFromElements(spanDivs);
+        if (bodyText) log('[extract] STEP 4 OK (span/div fallback): body length =', bodyText.length);
+      }
+
+      // If both strategies failed, log full container structure for diagnosis
+      if (!bodyText) {
+        log('[extract] STEP 4 FAIL (feed): p-tag texts found:', allPs.map(p => p.textContent.trim()));
+        log('[extract] STEP 4 FAIL (feed): container innerHTML (first 3000 chars):',
+          container.innerHTML.slice(0, 3000));
+        log('[extract] STEP 4 FAIL (feed): no body found after retry + span/div fallback');
+        return { author: null, body: null, extractionError: 'step4' };
+      }
     }
   } else {
     // STANDALONE — only use stable BEM selectors for post body, no generic fallback
@@ -253,13 +274,13 @@ function createDraftlyIcon(commentBox) {
     </svg>
   `;
 
-  btn.addEventListener('click', (e) => {
+  btn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
     log("icon clicked", commentBox);
 
-    const postContext = extractPostContext(commentBox);
+    const postContext = await extractPostContext(commentBox);
     if (postContext.extractionError) {
       log("extraction failed at", postContext.extractionError, "— opening panel with blocked state");
     } else {
