@@ -883,7 +883,12 @@ async function openPanel(commentBox, iconEl, postContext) {
   try {
     settings = await new Promise((resolve) => {
       chrome.runtime.sendMessage({ action: 'getSettings' }, (response) => {
-        resolve(response);
+        if (chrome.runtime.lastError) {
+          // Service worker inactive or connection error — resolve with null gracefully
+          resolve(null);
+        } else {
+          resolve(response);
+        }
       });
     });
     if (settings) {
