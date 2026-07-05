@@ -8,7 +8,7 @@
   <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     /* ============================================================
@@ -24,25 +24,26 @@
       --accent-hover: #db2777;
       --accent-glow: rgba(236, 72, 153, 0.15);
       --glass-bg: rgba(255, 255, 255, 0.7);
-      --glass-border: rgba(226, 232, 240, 0.8);
-      --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+      --glass-border: rgba(226, 232, 240, 0.6);
+      --card-shadow: 0 10px 40px -10px rgba(236, 72, 153, 0.05), 0 1px 3px rgba(0, 0, 0, 0.01);
       --font-display: 'Outfit', sans-serif;
       --font-body: 'Plus Jakarta Sans', sans-serif;
+      --card-radius: 28px;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg-gradient: linear-gradient(135deg, #0b1329 0%, #080b11 100%);
-        --surface: #131c31;
+        --bg-gradient: linear-gradient(135deg, #090e1c 0%, #05070c 100%);
+        --surface: #111a2e;
         --surface-border: #1e293b;
-        --text-main: #f1f5f9;
+        --text-main: #f8fafc;
         --text-muted: #94a3b8;
         --accent: #f472b6; /* Lighter pink for dark mode contrast */
         --accent-hover: #ec4899;
-        --accent-glow: rgba(244, 114, 182, 0.2);
-        --glass-bg: rgba(19, 28, 49, 0.6);
-        --glass-border: rgba(30, 41, 59, 0.8);
-        --card-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.3);
+        --accent-glow: rgba(244, 114, 182, 0.25);
+        --glass-bg: rgba(17, 26, 46, 0.65);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --card-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.4), 0 0 40px -10px var(--accent-glow);
       }
     }
 
@@ -60,77 +61,122 @@
       color: var(--text-main);
       font-family: var(--font-body);
       line-height: 1.6;
-      padding: 60px 20px;
+      padding: 80px 20px;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
       overflow-x: hidden;
     }
 
-    /* Decorative blurred shapes behind background */
+    /* Floating background blobs for futuristic feel */
     .blur-blob {
       position: absolute;
-      width: 400px;
-      height: 400px;
+      width: 450px;
+      height: 450px;
       border-radius: 50%;
       background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
       z-index: -1;
-      filter: blur(40px);
+      filter: blur(50px);
       pointer-events: none;
+      animation: floatAround 25s infinite alternate ease-in-out;
     }
 
-    .blob-1 { top: -100px; left: -100px; }
-    .blob-2 { bottom: 100px; right: -100px; }
+    .blob-1 {
+      top: -100px;
+      left: -100px;
+      animation-duration: 20s;
+    }
+    .blob-2 {
+      bottom: -100px;
+      right: -100px;
+      animation-duration: 28s;
+      animation-delay: -5s;
+    }
+
+    @keyframes floatAround {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(60px, -40px) scale(1.1); }
+      100% { transform: translate(-40px, 50px) scale(0.95); }
+    }
 
     /* ============================================================
-       Header & Branding
+       Header Section
        ============================================================ */
     header {
       text-align: center;
-      margin-bottom: 50px;
+      margin-bottom: 60px;
       max-width: 600px;
       animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
     }
 
     .brand-logo-wrap {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: var(--accent);
-      width: 64px;
-      height: 64px;
-      border-radius: 18px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 24px var(--accent-glow);
-      transition: transform 0.3s ease;
+      background: linear-gradient(135deg, var(--accent) 0%, #db2777 100%);
+      width: 72px;
+      height: 72px;
+      border-radius: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px var(--accent-glow);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+
+    .brand-logo-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 26px;
+      background: linear-gradient(135deg, var(--accent), transparent);
+      z-index: -1;
+      opacity: 0.5;
     }
 
     .brand-logo-wrap:hover {
-      transform: scale(1.08) rotate(5deg);
+      transform: scale(1.1) rotate(8deg);
+      box-shadow: 0 15px 40px var(--accent-glow);
     }
 
     .brand-logo-wrap svg {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       fill: #ffffff;
     }
 
     h1 {
       font-family: var(--font-display);
-      font-size: 2.5rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      margin-bottom: 8px;
-      background: linear-gradient(135deg, var(--text-main) 30%, var(--accent) 100%);
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--text-main) 40%, var(--accent) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .tagline {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       color: var(--text-muted);
       font-weight: 400;
+      margin-bottom: 16px;
+    }
+
+    .last-updated-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      border: 1px solid rgba(236, 72, 153, 0.25);
     }
 
     /* ============================================================
@@ -138,53 +184,80 @@
        ============================================================ */
     main {
       width: 100%;
-      max-width: 800px;
+      max-width: 840px;
       display: flex;
       flex-direction: column;
-      gap: 30px;
-      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+      gap: 36px;
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
     }
 
     .card {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 40px;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--card-radius);
+      padding: 50px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       box-shadow: var(--card-shadow);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle hover light reflection effect */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -50%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.03) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transition: transform 0.8s ease;
+      pointer-events: none;
+      transform: skewX(-15deg);
+    }
+
+    .card:hover::before {
+      transform: translateX(50%) skewX(-15deg);
     }
 
     .card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-4px);
+      border-color: rgba(236, 72, 153, 0.2);
     }
 
     h2 {
       font-family: var(--font-display);
-      font-size: 1.6rem;
-      font-weight: 600;
-      margin-bottom: 24px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 28px;
       color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
+      letter-spacing: -0.02em;
     }
 
     h2::before {
       content: '';
       display: inline-block;
       width: 6px;
-      height: 24px;
-      background: var(--accent);
-      border-radius: 3px;
+      height: 28px;
+      background: linear-gradient(to bottom, var(--accent), #db2777);
+      border-radius: 4px;
     }
 
     p {
       color: var(--text-muted);
-      margin-bottom: 20px;
-      font-size: 1rem;
-      line-height: 1.7;
+      margin-bottom: 24px;
+      font-size: 1.05rem;
+      line-height: 1.8;
     }
 
     p strong {
@@ -196,38 +269,43 @@
       list-style-type: none;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 28px;
     }
 
     .policy-point {
       display: flex;
-      gap: 16px;
+      gap: 20px;
       align-items: flex-start;
+      position: relative;
     }
 
     .point-icon {
-      background: var(--accent-glow);
-      color: var(--accent);
+      background: linear-gradient(135deg, var(--accent) 0%, #db2777 100%);
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
       flex-shrink: 0;
-      font-weight: 600;
+      font-size: 0.95rem;
+      font-weight: 700;
+      box-shadow: 0 4px 15px var(--accent-glow);
     }
 
     .point-content h3 {
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin-bottom: 4px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 6px;
       color: var(--text-main);
+      letter-spacing: -0.01em;
     }
 
     .point-content p {
       margin-bottom: 0;
-      font-size: 0.95rem;
+      font-size: 0.98rem;
+      line-height: 1.7;
     }
 
     /* ============================================================
@@ -238,64 +316,81 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 20px;
-      border: 1px solid var(--glass-border);
-      background: linear-gradient(180deg, var(--surface) 0%, rgba(255, 255, 255, 0.05) 100%);
+      gap: 24px;
+      background: linear-gradient(180deg, var(--surface) 0%, rgba(255, 255, 255, 0.02) 100%);
     }
 
     .dev-title-label {
       text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
-      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      font-weight: 800;
       color: var(--accent);
+    }
+
+    .dev-profile-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .dev-name {
       font-family: var(--font-display);
-      font-size: 1.8rem;
-      font-weight: 700;
+      font-size: 2rem;
+      font-weight: 800;
       color: var(--text-main);
-      margin-top: 4px;
+      margin-top: 6px;
+      letter-spacing: -0.02em;
     }
 
     .dev-role {
-      font-size: 1rem;
+      font-size: 1.05rem;
       color: var(--text-muted);
-      margin-bottom: 12px;
+      margin-top: 4px;
+      margin-bottom: 16px;
+      font-weight: 500;
     }
 
     .dev-bio {
-      max-width: 550px;
-      font-size: 0.95rem;
+      max-width: 580px;
+      font-size: 1rem;
+      line-height: 1.7;
     }
 
     .social-links {
       display: flex;
-      gap: 12px;
+      gap: 16px;
       justify-content: center;
-      margin-top: 8px;
+      margin-top: 12px;
     }
 
     .social-link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
       border: 1px solid var(--surface-border);
       color: var(--text-muted);
       background: var(--surface);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .social-link svg {
+      transition: transform 0.3s ease;
     }
 
     .social-link:hover {
       color: #ffffff;
-      background: var(--accent);
+      background: linear-gradient(135deg, var(--accent) 0%, #db2777 100%);
       border-color: var(--accent);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px var(--accent-glow);
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 25px var(--accent-glow);
+    }
+
+    .social-link:hover svg {
+      transform: scale(1.1);
     }
 
     /* ============================================================
@@ -304,7 +399,7 @@
     @keyframes fadeInDown {
       from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translateY(-24px);
       }
       to {
         opacity: 1;
@@ -315,7 +410,7 @@
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(36px);
       }
       to {
         opacity: 1;
@@ -329,39 +424,42 @@
     footer {
       margin-top: 60px;
       text-align: center;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       color: var(--text-muted);
       max-width: 600px;
-      animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+      animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
     }
 
     footer a {
       color: var(--accent);
       text-decoration: none;
-      font-weight: 500;
+      font-weight: 600;
+      transition: color 0.3s ease;
     }
 
     footer a:hover {
+      color: var(--accent-hover);
       text-decoration: underline;
     }
 
     /* Responsive adjustments */
     @media (max-width: 640px) {
       body {
-        padding: 40px 16px;
+        padding: 50px 16px;
       }
       .card {
-        padding: 24px;
+        padding: 32px 20px;
+        border-radius: 20px;
       }
       h1 {
-        font-size: 2rem;
+        font-size: 2.2rem;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Decorative blur circles -->
+  <!-- Decorative floating background blobs -->
   <div class="blur-blob blob-1"></div>
   <div class="blur-blob blob-2"></div>
 
@@ -376,6 +474,10 @@
     </div>
     <h1>Quill</h1>
     <p class="tagline">Write your own thoughts from the ink of AI</p>
+    <div class="last-updated-badge">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top:-1px"><circle cx="12" cy="12" r="10"></circle><polyline points="12,6 12,12 16,14"></polyline></svg>
+      Last updated: July 5, 2026
+    </div>
   </header>
 
   <!-- Main Content -->
@@ -384,7 +486,7 @@
     <!-- Privacy Policy Card -->
     <section class="card">
       <h2>Privacy Policy</h2>
-      <p><strong>Quill – Smart LinkedIn Replies</strong> is committed to user privacy. Our philosophy is simple: <strong>your data is yours alone.</strong></p>
+      <p><strong>Quill – Smart LinkedIn Replies</strong> is committed to user privacy. Our core philosophy is simple and absolute: <strong>your data is yours alone.</strong></p>
       
       <ul class="policy-points">
         
@@ -392,12 +494,20 @@
           <div class="point-icon">1</div>
           <div class="point-content">
             <h3>Zero Server Operations</h3>
-            <p>Quill does not operate any databases, analytical servers, or third-party storage clusters. The developer cannot see, access, collect, or store any of your inputs, preferences, or generated comments.</p>
+            <p>Quill does not operate any databases, analytical servers, or remote storage clusters. The developer cannot see, access, collect, or store any of your inputs, preferences, or generated comments.</p>
           </div>
         </li>
 
         <li class="policy-point">
           <div class="point-icon">2</div>
+          <div class="point-content">
+            <h3>LinkedIn Post Extraction (Local)</h3>
+            <p>To generate relevant replies, Quill's content script reads the visible text and author name of the LinkedIn post you are commenting on. This content is read locally in your browser and sent only to Google's Gemini API as described below — it is never stored or transmitted anywhere else.</p>
+          </div>
+        </li>
+
+        <li class="policy-point">
+          <div class="point-icon">3</div>
           <div class="point-content">
             <h3>Local-Only Preference Storage</h3>
             <p>Your API key, configured tone, length, writing style descriptions, and custom comment examples are saved strictly on your local device inside your browser's extension storage (local storage). They never leave your machine except during generation.</p>
@@ -405,7 +515,7 @@
         </li>
 
         <li class="policy-point">
-          <div class="point-icon">3</div>
+          <div class="point-icon">4</div>
           <div class="point-content">
             <h3>Direct Gemini API Transmission</h3>
             <p>When you click generate, the post content is packaged alongside your API key and sent directly from your browser to Google's Gemini API endpoints. The request goes directly to Google; there are no proxy servers or intermediaries involved.</p>
@@ -413,18 +523,18 @@
         </li>
 
         <li class="policy-point">
-          <div class="point-icon">4</div>
+          <div class="point-icon">5</div>
           <div class="point-content">
             <h3>No Analytics or Tracking</h3>
-            <p>We do not use Google Analytics, cookies, telemetry tracking, or advertisements. Quill does not monitor how or when you use the extension.</p>
+            <p>We do not use Google Analytics, tracking cookies, telemetry monitoring, or advertising scripts. Quill does not monitor how, when, or where you use the extension.</p>
           </div>
         </li>
 
         <li class="policy-point">
-          <div class="point-icon">5</div>
+          <div class="point-icon">6</div>
           <div class="point-content">
             <h3>Contact & Support</h3>
-            <p>If you have any questions about this privacy statement, please email us directly at <a href="mailto:syedfaizanali1450+quill@gmail.com" style="color: var(--accent); text-decoration: none; font-weight: 500;">syedfaizanali1450+quill@gmail.com</a>.</p>
+            <p>If you have any questions about this privacy statement, please email us directly at <a href="mailto:syedfaizanali1450+quill@gmail.com" style="color: var(--accent); text-decoration: none; font-weight: 600;">syedfaizanali1450+quill@gmail.com</a>.</p>
           </div>
         </li>
 
@@ -433,7 +543,7 @@
 
     <!-- Developer Card -->
     <section class="card developer-card">
-      <div>
+      <div class="dev-profile-container">
         <span class="dev-title-label">Meet the Developer</span>
         <h3 class="dev-name">Syed Faizan Ali</h3>
         <p class="dev-role">Integration Developer at Accenture</p>
