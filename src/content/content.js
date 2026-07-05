@@ -109,6 +109,29 @@ async function extractPostContext(commentBox) {
   }
   log('[extract] STEP 2 OK: container found', container);
 
+  // ACTIVITY-ANNOTATION PRE-CHECK (between Step 2 and Step 3)
+  // LinkedIn renders "X commented on this" / "X reshared this" / "X likes this" cards where
+  // the engaging person's profile card appears ABOVE the actual embedded post. Detect this and
+  // locate the REAL nested post instead.
+  const ACTIVITY_RE = /^[\w\s\u00C0-\u024F,.'"-]+\s+(commented|reshared this|likes this|celebrated this|found this insightful|supports this)\.?\s*$/i;
+  let activityAnnotationDetected = false;
+  let activityActor = null; // the person who commented/reshared (skip this profile)
+
+  // Scan the first few text nodes / short paragraphs near the top of the container
+  const topTextEls = Array.from(container.querySelectorAll('p, span'))
+    .filter(el => !commentBox.contains(el) && !el.closest('[role="list"]'))
+    .slice(0, 12); // only look at the first ~12 candidate elements
+
+  for (const el of topTextEls) {
+    const t = (el.textContent || '').trim();
+    if (t.length > 5 && t.length < 120 && ACTIVITY_RE.test(t)) {
+      activityAnnotationDetected = true;
+      activityActor = t;
+      log('[extract] Detected activity-annotation header: "' + t + '" — searching for nested original post.');
+      break;
+    }
+  }
+
   // STEP 3 — EXTRACT AUTHOR
   // Candidates: all a[href*="/in/"] links with non-empty text, in DOM order.
   // Accept the FIRST that has a degree marker ("• 1st", "• 2nd", "• 3rd") on itself or
@@ -129,21 +152,35 @@ async function extractPostContext(commentBox) {
   }
 
   // Restrict to elements BEFORE the comment box (exclude comment section)
-  const allProfileLinks = Array.from(container.querySelectorAll('a[href*="/in/"]'));
-  const authorLink = allProfileLinks.find(link => {
-    const text = (link.textContent || '').trim();
-    if (!text) return false;
-    // Reject links inside the comments section
-    if (link.closest('[role="list"]') && link.compareDocumentPosition(commentBox) & Node.DOCUMENT_POSITION_FOLLOWING) {
-      // This link is INSIDE a list that precedes the comment box — likely a comment
-      // Only skip if the list is a comments list (has multiple comment items)
-      const parentList = link.closest('[role="list"]');
-      if (parentList && parentList.querySelectorAll('[role="listitem"]').length > 1) return false;
-    }
-    return hasDegreeMarker(link);
-  });
+  const allProfileLinks = Array.from(container.querySelectorAll('a[href*="/in/"]'))
+    .filter(link => {
+      const text = (link.textContent || '').trim();
+      if (!text) return false;
+      // Reject links inside the comments section
+      if (link.closest('[role="list"]') && link.compareDocumentPosition(commentBox) & Node.DOCUMENT_POSITION_FOLLOWING) {
+        const parentList = link.closest('[role="list"]');
+        if (parentList && parentList.querySelectorAll('[role="listitem"]').length > 1) return false;
+      }
+      return hasDegreeMarker(link);
+    });
 
+  let authorLink = null;
   let authorName = null;
+
+  if (activityAnnotationDetected) {
+    // On activity cards: skip the FIRST degree-marked profile (that's the actor who engaged),
+    // use the SECOND degree-marked profile (that's the original post author).
+    if (allProfileLinks.length >= 2) {
+      authorLink = allProfileLinks[1];
+      log('[extract] STEP 3 OK (activity card): using 2nd profile as real author');
+    } else {
+      log('[extract] STEP 3 FAIL (activity card): only', allProfileLinks.length, 'degree-marked profile(s) found — cannot identify nested post author');
+      return { author: null, body: null, extractionError: 'step3' };
+    }
+  } else {
+    authorLink = allProfileLinks[0] || null;
+  }
+
   if (authorLink) {
     // Take first line only, strip degree badge
     authorName = (authorLink.textContent || '').trim().split('\n')[0].trim();
@@ -161,6 +198,13 @@ async function extractPostContext(commentBox) {
   // Helper: run timestamp-anchor + fallback logic on an array of elements
   const TIMESTAMP_RE = /^\s*\d+\s*[smhdw]\w{0,2}\s*(?:[•·]\s*(?:Edited)?\s*[•·]?)?\s*$/i;
   const REACTION_RE  = /^\d[\d,]*\s*(reaction|comment|repost|like|share)/i;
+
+  // For activity cards, only consider elements AFTER the real author link in the DOM
+  // (to avoid picking up the actor's bio or the annotation text as the body)
+  function elementIsAfterAnchor(el, anchor) {
+    if (!anchor) return true; // no restriction if no anchor
+    return !!(anchor.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
+  }
 
   function extractBodyFromElements(els) {
     let tsIndex = -1;
@@ -186,15 +230,18 @@ async function extractPostContext(commentBox) {
   }
 
   if (arch === 'feed') {
+    // For activity cards, scope to DOM elements after the real author link
+    const domAnchor = activityAnnotationDetected ? authorLink : null;
+
     // First attempt: collect <p> tags outside comment box and comments list
     let allPs = Array.from(container.querySelectorAll('p'))
-      .filter(p => !commentBox.contains(p) && !p.closest('[role="list"]'));
+      .filter(p => !commentBox.contains(p) && !p.closest('[role="list"]') && elementIsAfterAnchor(p, domAnchor));
 
     // RETRY: if zero <p> tags found, LinkedIn may not have hydrated yet — wait 300ms and re-query
     if (allPs.length === 0) {
       await new Promise(r => setTimeout(r, 300));
       allPs = Array.from(container.querySelectorAll('p'))
-        .filter(p => !commentBox.contains(p) && !p.closest('[role="list"]'));
+        .filter(p => !commentBox.contains(p) && !p.closest('[role="list"]') && elementIsAfterAnchor(p, domAnchor));
       log('[extract] STEP 4 retry after 300ms, p-tag count:', allPs.length);
     }
 
@@ -209,6 +256,7 @@ async function extractPostContext(commentBox) {
         .filter(el => {
           if (commentBox.contains(el)) return false;
           if (el.closest('[role="list"]')) return false;
+          if (!elementIsAfterAnchor(el, domAnchor)) return false;
           // Only leaf-ish elements (avoid giant wrapper divs)
           const t = (el.textContent || '').trim();
           return t.length > 0 && t.length < 2000 && el.children.length < 5;
